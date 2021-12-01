@@ -17,22 +17,43 @@ std::vector<int> parse_input_file() {
 	return distances;
 }
 
-
-int main() {
+int get_distance_increments(std::vector<int> distances) {
 	int previous_distance = INFINITY;
 	int increments = 0;
-	std::vector<int> distances = parse_input_file();
-
 	previous_distance = *distances.begin();
-	
-	for (std::vector<int>::iterator it = distances.begin();  it != distances.end(); ++it) {
 
-		if (*it > previous_distance) {
+	for (int i: distances) {
+
+		if (i > previous_distance) {
 			increments++;
 		}
-		previous_distance = *it;
+		previous_distance = i;
 	}
 
+	return increments;
+}
+
+std::vector<int> group_distances(std::vector<int> distances) {
+	int grouped_distance;
+	std::vector<int> grouped_distances;
+
+	for (int i=0; i < distances.size()-2; i++) {
+		grouped_distance = distances[i] + distances[i+1] + distances[i+2];
+		grouped_distances.push_back(grouped_distance);
+	}
+
+	return grouped_distances;
+}
+
+
+int main() {
+	std::vector<int> distances = parse_input_file();
+	int increments = get_distance_increments(distances);
+
+	std::vector<int> grouped_distances = group_distances(distances);
+	int increments2 = get_distance_increments(grouped_distances);
+
 	std::cout << increments << std::endl;
+	std::cout << increments2 << std::endl;
 	return 0;
 }
