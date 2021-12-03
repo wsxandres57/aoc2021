@@ -56,63 +56,74 @@ std::string get_epsilon_rate(std::string ganma_rate) {
 	return epsilon_rate;
 }
 
-std::string get_oxigen_rate(std::vector<std::string> input, std::string ganma_rate, bool epsilon) {
-	std::vector<std::string> aux = input;
-	std::vector<std::string> aux2;
-	int zeros = 0;
-	int ones = 0;
-	std::string oxigen_rate;
-
-
-	for (int i=0; i < ganma_rate.size()-1; ++i) {
-		std::copy_if(aux.begin(), aux.end(), std::back_inserter(aux2), 
-				[i, ganma_rate](std::string aux){ return aux[i] == ganma_rate[i]; });
-		aux = aux2;
-		std::cout << aux.size() << std::endl;
-		aux2.clear();
-	}
-
-	if (aux.size() == 2){ 
-		char s;
-		if (epsilon) {
-			s = '0';
-		} else {
-			s = '1';
-		}
-
-		for (int i=0; i < aux.size(); ++i) {
-			if (aux[i][ganma_rate.size()-1] == s) {
-				oxigen_rate = aux[i];
-			}
-		}
-	} else {
-		std::cout << aux.size() << std::endl;
+std::string get_oxigen_rate(std::vector<std::string> input) {
+	// this is the worst solution in order, I am not taking advantage of part 1
+	std::vector<std::string> sol = input;
+	std::vector<std::string> aux;
+	
+	for (int i = 0; i < input.at(0).size(); ++i) {
 		int zeros = 0;
 		int ones = 0;
-		for (int i=0; i < aux.size(); ++i) {
-			std::cout << aux[i] << std::endl;
-			if (aux[i][ganma_rate.size()-1] == '1') {
+		for (std::string position: sol) {
+			if (position.at(i) == '1'){
 				ones++;
 			} else {
 				zeros++;
 			}
 		}
-		
-		//std::cout << ones << std::endl;
-		//std::cout << zeros << std::endl;
 
-		//char to_find = (ones>zeros) ? '0':'1';
-		//for (int i=0; i < aux.size(); ++i) {
-			//if (aux[i][ganma_rate.size()-1] == to_find) {
-				//oxigen_rate = aux[i];
-			//}
-		//}
+		if (ones > zeros) {
+			std::copy_if(sol.begin(), sol.end(), std::back_inserter(aux),
+					[i](std::string sol){return sol.at(i) == '1';});
+		} else if (zeros > ones) {
+			std::copy_if(sol.begin(), sol.end(), std::back_inserter(aux),
+					[i](std::string sol){return sol.at(i) == '0';});
+		} else {
+			std::copy_if(sol.begin(), sol.end(), std::back_inserter(aux),
+					[i](std::string sol){return sol.at(i) == '1';});
+		}
 
+		sol = aux;
+		aux.clear();
 	}
-	
-	std::cout << "hola" << std::endl;
 
-	return oxigen_rate;
+	return sol[0];
+}
+
+std::string get_co2_rate(std::vector<std::string> input) {
+	// this is the worst solution in order, I am not taking advantage of part 1
+	std::vector<std::string> sol = input;
+	std::vector<std::string> aux;
+	
+	for (int i = 0; i < input.at(0).size() && sol.size() > 1; ++i) {
+		int zeros = 0;
+		int ones = 0;
+		for (std::string position: sol) {
+			if (position.at(i) == '1'){
+				ones++;
+			} else {
+				zeros++;
+			}
+		}
+
+		if (ones < zeros) {
+			std::copy_if(sol.begin(), sol.end(), std::back_inserter(aux),
+					[i](std::string sol){return sol.at(i) == '1';});
+		} else if (zeros < ones) {
+			std::copy_if(sol.begin(), sol.end(), std::back_inserter(aux),
+					[i](std::string sol){return sol.at(i) == '0';});
+		} else {
+			for (std::string s: sol)
+				std::cout << s << std::endl;
+			std::copy_if(sol.begin(), sol.end(), std::back_inserter(aux),
+					[i](std::string sol){return sol.at(i) == '0';});
+		}
+
+		sol = aux;
+		aux.clear();
+	}
+
+	return sol[0];
 }
 
 
@@ -140,17 +151,17 @@ int main(int argc, char* argv[]) {
 	int sol1 = ganma*epsilon;
 	std::cout << "Solution to part 1 is: " << sol1 << std::endl;
 
-	std::string oxigen_rate = get_oxigen_rate(input, ganma_rate, false);
-	std::string co2_rate = get_oxigen_rate(input, epsilon_rate, true);
+	std::string oxigen_rate = get_oxigen_rate(input);
+	std::string co2_rate = get_co2_rate(input);
 	std::cout << oxigen_rate << std::endl;
 	std::cout << co2_rate << std::endl;
 
-	//int oxigen = stoi(oxigen_rate, 0, 2);
-	//int co2 = stoi(co2_rate, 0, 2);
-	//int sol2 = oxigen*co2;
+	int oxigen = stoi(oxigen_rate, 0, 2);
+	int co2 = stoi(co2_rate, 0, 2);
+	int sol2 = oxigen*co2;
 	//std::cout << oxigen << std::endl;
 	//std::cout << co2 << std::endl;
-	//std::cout << "Solution to part 2 is: " << sol2 << std::endl;
+	std::cout << "Solution to part 2 is: " << sol2 << std::endl;
 
 
 	return 0;
