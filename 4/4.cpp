@@ -15,9 +15,12 @@ class BingoTable {
 
 		bool completed_row(){
 			bool completed = false;
-			for (int i=0; i < this->table_size && !completed; i += this->table_size) {
-				if (this->numbers[i].marked && this->numbers[i+1].marked && this->numbers[i+2].marked
-					&& this->numbers[i+3].marked && this->numbers[i+4].marked) {
+			for (int i=0; i < this->numbers.size() && !completed; i += this->table_size) {
+				if (this->numbers[i].marked 
+						&& this->numbers[i+1].marked 
+						&& this->numbers[i+2].marked
+						&& this->numbers[i+3].marked 
+						&& this->numbers[i+4].marked) {
 					completed = true;
 				}
 			}
@@ -39,7 +42,13 @@ class BingoTable {
 		};
 
 	public:
+		bool done;
 		std::vector<Number> numbers;
+		BingoTable() {};
+		BingoTable& operator=(const BingoTable& other) {
+			this->numbers = other.numbers;
+			return *this;
+		};
 		BingoTable(std::vector<std::string> lines) {
 			Number n;
 			for (std::string line: lines) {
@@ -67,8 +76,9 @@ class BingoTable {
 
 		void mark_value(int value) {
 			for(Number& n: this->numbers)
-				if (n.value == value)
+				if (n.value == value) {
 					n.marked = true;
+				}
 		}
 
 		int get_unmarked_sum() {
@@ -85,8 +95,13 @@ class BingoTable {
 			for (i = 0; i < this->numbers.size(); ++i) {
 				if (i % this->table_size == 0) 
 					std::cout << std::endl;
-				std::cout << this->numbers[i].value << " ";
+				std::cout << this->numbers[i].value;
+				if (this->numbers[i].marked)
+					std::cout << "*";
+
+				std::cout << " ";
 			}
+			std::cout << std::endl;
 		};
 };
 
@@ -137,21 +152,17 @@ int main(int argc, char* argv[]) {
 	std::string input_file = argv[1];
 	read_input(input_file, tables, values);
 	
-	bool completed = false;
-	for(int i: values) {
-		for(BingoTable& table: tables) {
-			table.mark_value(i);
-			if (table.completed()) {
-				completed = true;
-				std::cout << i << std::endl;
-				std::cout << table.get_unmarked_sum() << std::endl;
-				std::cout << i*table.get_unmarked_sum() << std::endl;
+	for(int& i: values) {
+		for(BingoTable& table: tables){
+			if (!table.done) {
+				table.mark_value(i);
+				if (table.completed()) {
+					table.done = true;
+					std::cout << i << std::endl;
+					std::cout << table.get_unmarked_sum() << std::endl;
+					std::cout << i*table.get_unmarked_sum() << std::endl;
+				}
 			}
 		}
-
-		if (completed)
-			break;
-
 	}
-
 }
