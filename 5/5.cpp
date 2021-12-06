@@ -90,7 +90,7 @@ std::pair<int, int> get_table_size(std::vector<Vent> input_vents) {
 std::vector<std::vector<int>> create_table(int x, int y) {
     std::vector<std::vector<int>> table;
     // TODO: with the real input I am geting a core dumped error without the +1
-    for (int i=0; i <= x+1; ++i) {
+    for (int i=0; i <= x; ++i) {
         std::vector<int> row;
         for (int j = 0; j <= y; j++) {
             row.push_back(0);
@@ -134,31 +134,38 @@ void mark_vertical_points(Vent& v, std::vector<std::vector<int>>& table) {
 
 void mark_diagonal_points_south_east(Vent& v, std::vector<std::vector<int>>& table) {
     int i, j;
-    int startx = (v.start.first < v.end.first) ? v.start.first:v.end.first;
-    int endx = (v.start.first > v.end.first) ? v.start.first:v.end.first;
-    int starty = (v.start.second < v.end.second) ? v.start.second:v.end.second;
-
-
-    int y=starty;
-    for (i = startx; i <= endx; ++i) {
-            table[i][y] += 1;
-            y++;
+    j = v.start.second;
+    for(i = v.start.first; i <= v.end.first; ++i){
+        table[j][i] += 1;
+        j++;
     }
 }
 
-void mark_diagonal_points_north(Vent& v, std::vector<std::vector<int>>& table) {
+void mark_diagonal_points_north_west(Vent& v, std::vector<std::vector<int>>& table) {
     int i, j;
-    int startx = (v.start.first < v.end.first) ? v.start.first:v.end.first;
-    int endx = (v.start.first > v.end.first) ? v.start.first:v.end.first;
-    int starty = (v.start.second > v.end.second) ? v.start.second:v.end.second;
-    int y= starty;
-
-    for(int i=startx; i < endx; ++i) {
-        table[i][y] += 1;
-        y--;
+    j = v.start.second;
+    for(i = v.start.first; i >= v.end.first; --i){
+        table[j][i] += 1;
+        j--;
     }
+}
 
+void mark_diagonal_points_north_east(Vent& v, std::vector<std::vector<int>>& table) {
+    int i, j;
+    j = v.start.second;
+    for(i = v.start.first; i >= v.end.first; --i){
+        table[j][i] += 1;
+        j++;
+    }
+}
 
+void mark_diagonal_points_south_west(Vent& v, std::vector<std::vector<int>>& table) {
+    int i, j;
+    j = v.start.second;
+    for(i = v.start.first; i <= v.end.first; ++i){
+        table[j][i] += 1;
+        j--;
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -171,8 +178,7 @@ int main(int argc, char* argv[]) {
     std::string input_file = argv[1];
     std::vector<Vent> vents = parse_input(input_file);
     std::pair<int, int> dim = get_table_size(vents);
-    std::vector<std::vector<int>> table = create_table(dim.first, dim.second);
-    //std::vector<std::vector<int>> table = create_table(10,10);
+    std::vector<std::vector<int>> table = create_table(dim.second, dim.first);
 
     //part 1
     for(Vent& v: vents) {
@@ -181,19 +187,20 @@ int main(int argc, char* argv[]) {
         } else if (v.start.first == v.end.first) {
             mark_vertical_points(v, table);
         } else if(abs(v.start.first - v.end.first) == abs(v.start.second - v.end.second)) {
-            if (v.start.first < v.end.first) {
-                if (v.start.second < v.end.second) {
-                    mark_diagonal_points_south_east(v, table);
-                } else {
-                    mark_diagonal_points_north(v, table);
-                }
-            } else {
-                if (v.start.second > v.end.second) {
-                    mark_diagonal_points_south_east(v, table);
-                } else {
-                    mark_diagonal_points_north(v, table);
-                }
+            if (v.start.first < v.end.first &&
+                    v.start.second < v.end.second) {
+                mark_diagonal_points_south_east(v, table);
+            } else if (v.start.first > v.end.first &&
+                    v.start.second > v.end.second) {
+                mark_diagonal_points_north_west(v, table);
+            } else if (v.start.first > v.end.first &&
+                    v.start.second < v.end.second) {
+                mark_diagonal_points_north_east(v, table);
+            } else if (v.start.first < v.end.first &&
+                    v.start.second > v.end.second) {
+                mark_diagonal_points_south_west(v, table);
             }
+
         }
     }
 
@@ -206,8 +213,8 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "**********" << std::endl;
+    print_table(table);
     std::cout << count << std::endl;
-    //print_table(table);
 
     return 0;
 }
