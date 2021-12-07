@@ -25,6 +25,21 @@ std::vector<int> parse_input(std::string filename){
 	return initial_states;
 }
 
+int get_fuel_acum_to_pos(std::vector<int> crab_positions, int position) {
+	int cost = 0;
+
+	for(int& i: crab_positions) {
+		int acum = 0;
+		int despl = abs(i-position);
+
+		for (int j=1; j <= despl; ++j)
+			acum += j;
+		cost += acum;
+	}
+
+	return cost;
+}
+
 int get_fuel_to_pos(std::vector<int> crab_positions, int position) {
 	int cost = 0;
 
@@ -41,12 +56,27 @@ int part_one(std::vector<int> crab_positions){
 	int min = *(std::min_element(crab_positions.begin(), crab_positions.end()));
 	int max = *(std::max_element(crab_positions.begin(), crab_positions.end()));
 	std::vector<int> costs;
-	std::cout << min << std::endl;
-	std::cout << max << std::endl;
 
 	for(int i=min; i<=max; ++i){
 		current_cost = get_fuel_to_pos(crab_positions, i);
-		//std::cout << i << " " << cost << " " << current_cost << std::endl;
+		if (current_cost < cost) {
+			cost = current_cost;
+		}
+	}
+
+	return cost;
+
+}
+
+int part_two(std::vector<int> crab_positions){
+	int cost = INFINITY;
+	int current_cost = 0;
+	int min = *(std::min_element(crab_positions.begin(), crab_positions.end()));
+	int max = *(std::max_element(crab_positions.begin(), crab_positions.end()));
+	std::vector<int> costs;
+
+	for(int i=min; i<=max; ++i){
+		current_cost = get_fuel_acum_to_pos(crab_positions, i);
 		if (current_cost < cost) {
 			cost = current_cost;
 		}
@@ -66,5 +96,7 @@ int main(int argc, char* argv[]) {
 	std::string input_file = argv[1];
 	std::vector<int> crab_positions = parse_input(input_file);
 	int cost = part_one(crab_positions);
-	std::cout << cost << std::endl;
+	std::cout << "Fuel spent to aling the crabs is: " << cost << std::endl;
+	int cost_acum = part_two(crab_positions);
+	std::cout << "Fuel spent to aling the crabs in part 2 is: " << cost_acum << std::endl;
 }
