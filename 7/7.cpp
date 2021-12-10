@@ -31,9 +31,8 @@ int get_fuel_acum_to_pos(std::vector<int> crab_positions, int position) {
 	for(int& i: crab_positions) {
 		int acum = 0;
 		int despl = abs(i-position);
-
-		for (int j=1; j <= despl; ++j)
-			acum += j;
+		##Thats a triangular number and there is a formula for this series, we use it
+		acum = ((desp*desp) + desp)/2;
 		cost += acum;
 	}
 
